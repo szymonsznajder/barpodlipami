@@ -1,25 +1,31 @@
 <?php
 /**
- * The template for displaying all single posts
+ * The template for displaying all pages.
  *
- * @link https://developer.wordpress.org/themes/basics/template-hierarchy/#single-post
+ * This is the template that displays all pages by default.
+ * Please note that this is the WordPress construct of pages
+ * and that other 'pages' on your WordPress site will use a
+ * different template.
  *
- * @package WordPress
- * @subpackage Twenty_Twenty_One
- * @since Twenty Twenty-One 1.0
+ * @package Pub Store
  */
 
-get_header();
+get_header(); ?>
 
-/* Start the Loop */
-while ( have_posts() ) :
-	the_post();
-	get_template_part( 'template-parts/content/content-page' );
-
-	// If comments are open or there is at least one comment, load up the comment template.
-	if ( comments_open() || get_comments_number() ) {
-		comments_template();
-	}
-endwhile; // End of the loop.
-
-get_footer();
+<div class="container">
+  <div id="ps_page_wrapper">
+         <section class="page_content_layout">               
+                <?php while( have_posts() ) : the_post(); ?>                               
+                    <?php get_template_part( 'content', 'page' ); ?>
+                    <?php
+                        //If comments are open or we have at least one comment, load up the comment template
+                        if ( comments_open() || '0' != get_comments_number() )
+                            comments_template();
+                        ?>                               
+                <?php endwhile; ?>                     
+        </section><!-- section-->   
+ <?php get_sidebar();?>      
+<div class="clear"></div>
+</div><!-- .ps_page_wrapper --> 
+</div><!-- .container --> 
+<?php get_footer(); ?>

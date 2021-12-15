@@ -1,112 +1,79 @@
 <?php
 /**
- * The template for displaying image attachments
+ * The template for displaying image attachments.
  *
- * @package WordPress
- * @subpackage Twenty_Twenty_One
- * @since Twenty Twenty-One 1.0
+ * @package Pub Store
  */
 
-get_header();
+get_header(); ?>
 
-// Start the loop.
-while ( have_posts() ) {
-	the_post();
-	?>
-	<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
-		<header class="entry-header alignwide">
-			<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
-		</header><!-- .entry-header -->
+<div class="container">
+     <div id="ps_page_wrapper">
+        <section class="page_content_layout">
+			<?php while ( have_posts() ) : the_post(); ?>    
+                <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+                    <header class="entry-header">
+                        <?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>    
+                        <div class="entry-meta">
+                            <?php
+                                $metadata = wp_get_attachment_metadata();
+                                 printf( esc_html_e( 'Published <span class="entry-date"><time class="entry-date" datetime="%1$s">%2$s</time></span> at <a href="%3$s">%4$s &times; %5$s</a> in <a href="%6$s" rel="gallery">%7$s</a>', 'pub-store' ),
+                                    esc_attr( get_the_date( 'c' ) ),
+                                    esc_html( get_the_date() ),
+                                    esc_url( wp_get_attachment_url() ),
+                                    esc_attr($metadata['width']),
+                                    esc_attr($metadata['height']),
+                                    esc_url( get_permalink( $post->post_parent ) ),
+                                    esc_html( get_the_title( $post->post_parent ) )
+                                );
+    
+                                edit_post_link( __( 'Edit', 'pub-store' ), '<span class="edit-link">', '</span>' );
+                            ?>
+                        </div><!-- .entry-meta -->
+    
+                        <nav role="navigation" id="image-navigation" class="image-navigation">
+                            <div class="nav-previous"><?php previous_image_link( false, __( '<span class="meta-nav">&larr;</span> Previous', 'pub-store' ) ); ?></div>
+                            <div class="nav-next"><?php next_image_link( false, __( 'Next <span class="meta-nav">&rarr;</span>', 'pub-store' ) ); ?></div>
+                        </nav><!-- #image-navigation -->
+                    </header><!-- .entry-header -->
+    
+                    <div class="entry-content">
+                        <div class="entry-attachment">
+                            <div class="attachment">
+                                <?php pub_store_the_attached_image(); ?>
+                            </div><!-- .attachment -->
+    
+                            <?php if ( has_excerpt() ) : ?>
+                            <div class="entry-caption">
+                                <?php the_excerpt(); ?>
+                            </div><!-- .entry-caption -->
+                            <?php endif; ?>
+                        </div><!-- .entry-attachment -->
+    
+                        <?php
+                            the_content();
+                            wp_link_pages( array(
+                                'before' => '<div class="page-links">' . __( 'Pages:', 'pub-store' ),
+                                'after'  => '</div>',
+                            ) );
+                        ?>
+                    </div><!-- .entry-content -->
+    
+                    <?php edit_post_link( __( 'Edit', 'pub-store' ), '<footer class="entry-meta"><span class="edit-link">', '</span></footer>' ); ?>
+                </article><!-- #post-## -->
+    
+                <?php
+                    // If comments are open or we have at least one comment, load up the comment template
+                    if ( comments_open() || '0' != get_comments_number() )
+                        comments_template();
+                ?>
+    
+            <?php endwhile; // end of the loop. ?>          
 
-		<div class="entry-content">
-			<figure class="wp-block-image">
-				<?php
-				/**
-				 * Filter the default image attachment size.
-				 *
-				 * @since Twenty Twenty-One 1.0
-				 *
-				 * @param string $image_size Image size. Default 'full'.
-				 */
-				$image_size = apply_filters( 'twenty_twenty_one_attachment_size', 'full' );
-				echo wp_get_attachment_image( get_the_ID(), $image_size );
-				?>
+        </section>
+        <?php get_sidebar();?>
+        <div class="clear"></div>
+    </div>
+</div>
 
-				<?php if ( wp_get_attachment_caption() ) : ?>
-					<figcaption class="wp-caption-text"><?php echo wp_kses_post( wp_get_attachment_caption() ); ?></figcaption>
-				<?php endif; ?>
-			</figure><!-- .wp-block-image -->
-
-			<?php
-			the_content();
-
-			wp_link_pages(
-				array(
-					'before'   => '<nav class="page-links" aria-label="' . esc_attr__( 'Page', 'twentytwentyone' ) . '">',
-					'after'    => '</nav>',
-					/* translators: %: Page number. */
-					'pagelink' => esc_html__( 'Page %', 'twentytwentyone' ),
-				)
-			);
-			?>
-		</div><!-- .entry-content -->
-
-		<footer class="entry-footer default-max-width">
-			<?php
-			// Check if there is a parent, then add the published in link.
-			if ( wp_get_post_parent_id( $post ) ) {
-				echo '<span class="posted-on">';
-				printf(
-					/* translators: %s: Parent post. */
-					esc_html__( 'Published in %s', 'twentytwentyone' ),
-					'<a href="' . esc_url( get_the_permalink( wp_get_post_parent_id( $post ) ) ) . '">' . esc_html( get_the_title( wp_get_post_parent_id( $post ) ) ) . '</a>'
-				);
-				echo '</span>';
-			} else {
-				// Edit post link.
-				edit_post_link(
-					sprintf(
-						/* translators: %s: Name of current post. Only visible to screen readers. */
-						esc_html__( 'Edit %s', 'twentytwentyone' ),
-						'<span class="screen-reader-text">' . get_the_title() . '</span>'
-					),
-					'<span class="edit-link">',
-					'</span>'
-				);
-			}
-
-			// Retrieve attachment metadata.
-			$metadata = wp_get_attachment_metadata();
-			if ( $metadata ) {
-				printf(
-					'<span class="full-size-link"><span class="screen-reader-text">%1$s</span><a href="%2$s">%3$s &times; %4$s</a></span>',
-					esc_html_x( 'Full size', 'Used before full size attachment link.', 'twentytwentyone' ), // phpcs:ignore WordPress.Security.EscapeOutput
-					esc_url( wp_get_attachment_url() ),
-					absint( $metadata['width'] ),
-					absint( $metadata['height'] )
-				);
-			}
-
-			if ( wp_get_post_parent_id( $post ) ) {
-				// Edit post link.
-				edit_post_link(
-					sprintf(
-						/* translators: %s: Name of current post. Only visible to screen readers. */
-						esc_html__( 'Edit %s', 'twentytwentyone' ),
-						'<span class="screen-reader-text">' . get_the_title() . '</span>'
-					),
-					'<span class="edit-link">',
-					'</span><br>'
-				);
-			}
-			?>
-		</footer><!-- .entry-footer -->
-	</article><!-- #post-<?php the_ID(); ?> -->
-	<?php
-	// If comments are open or there is at least one comment, load up the comment template.
-	if ( comments_open() || get_comments_number() ) {
-		comments_template();
-	}
-} // End the loop.
-
-get_footer();
+<?php get_footer(); ?>
