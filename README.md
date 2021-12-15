@@ -1,2 +1,0 @@
-# barpodlipami
-Pod Lipami
